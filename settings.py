@@ -77,7 +77,7 @@ class SettingsDialog(QDialog):
         self.config = config
         self.autostart_notice = None  # 延迟到对话框关闭后再提示，避免嵌套模态框
         self.setWindowTitle("设置")
-        self.setFixedSize(300, 200)
+        self.setFixedSize(300, 280)
         self.init_ui()
 
     def init_ui(self):
@@ -97,6 +97,9 @@ class SettingsDialog(QDialog):
         self.cb_english.setChecked(self.config.get("enable_english", True))
         layout.addWidget(self.cb_english)
 
+        self.cb_sync = QCheckBox("自动同步 English.txt 到目标文件")
+        self.cb_sync.setChecked(self.config.get("enable_sync", False))
+        layout.addWidget(self.cb_sync)
         # 保存/取消
         btn_layout = QHBoxLayout()
         save_btn = QPushButton("保存")
@@ -113,6 +116,7 @@ class SettingsDialog(QDialog):
         self.config["auto_start"] = self.cb_autostart.isChecked()
         self.config["enable_todo"] = self.cb_todo.isChecked()
         self.config["enable_english"] = self.cb_english.isChecked()
+        self.config["enable_sync"] = self.cb_sync.isChecked()
 
         # 保存到文件
         config_path = os.path.join(os.path.dirname(__file__), "config.json")

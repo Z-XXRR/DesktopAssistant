@@ -7,7 +7,7 @@ class TodoWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setup_ui()
-        self.todo_path = self.get_file_path("代办.txt")
+        self.todo_path = self.get_file_path("待办.txt")
         self.load_todo()
         self.last_mtime = self.get_file_mtime()
         self.timer = QTimer(self)
