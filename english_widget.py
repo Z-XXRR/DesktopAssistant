@@ -2,10 +2,14 @@ import os
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListWidget, QListWidgetItem
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
+import json
+
 
 class EnglishWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        with open("config.json", "r", encoding="utf-8") as f:
+            self.config = json.load(f)
         self.setup_ui()
         self.english_path = self.get_file_path("English.txt")
         self.load_english()
@@ -19,19 +23,20 @@ class EnglishWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         self.word_list = QListWidget()
         self.word_list.setFont(QFont("Microsoft YaHei", 10))
-        self.word_list.setStyleSheet("""
+        style = """
             QListWidget {
                 background: transparent;
                 border: 2px solid rgba(200,200,200,150);
                 border-radius: 10px;
                 padding: 10px;
-                color: #222;
+                color: __TEXT_COLOR__;
             }
-            QListWidget::item { padding: 5px; border-bottom: 1px solid rgba(200,200,200,100); }
+            QListWidget::item { color: __TEXT_COLOR__; padding: 5px; border-bottom: 1px solid rgba(200,200,200,100); }
             QListWidget::item:selected { background: rgba(100,150,255,100); }
             QScrollBar:vertical { width: 8px; background: rgba(200,200,200,100); border-radius: 4px; }
             QScrollBar::handle:vertical { background: rgba(150,150,150,150); border-radius: 4px; min-height: 20px; }
-        """)
+        """
+        self.word_list.setStyleSheet(style.replace("__TEXT_COLOR__", self.config["color_words"]))
         self.word_list.itemClicked.connect(self.on_word_clicked)
         layout.addWidget(self.word_list)
 
@@ -65,9 +70,28 @@ class EnglishWidget(QWidget):
             line = line.strip()
             if not line:
                 continue
-            parts = line.split(' ', 1)
-            word = parts[0]
-            meaning = parts[1] if len(parts) > 1 else ""
+            count = 1
+            word = ""
+            while True:
+                parts = line.split(' ',1)
+                word+= parts[0]+" "
+                if len(parts) > 1 and parts[1] and parts[1][0].isascii() and parts[1][0].isalpha():
+                    #count += 1
+                    #continue
+                    #word+= parts[0]+" "
+                    line = parts[1]
+                else:
+                    #words+=parts[0]
+                    if len(parts) > 1:
+                        meaning = parts[1]
+                    else:
+                        meaning = ""
+                    break
+
+            #parts = line.split(' ', count)
+            #word = parts[0]
+            #meaning = parts[1] if len(parts) > 1 else ""
+
             item = QListWidgetItem(word)
             item.setData(Qt.UserRole, {'word': word, 'meaning': meaning, 'show_meaning': False})
             self.word_list.addItem(item)

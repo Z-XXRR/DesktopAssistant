@@ -2,12 +2,17 @@ import os
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QTextEdit
 from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QFont
+import json
+
+
 
 class TodoWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        with open("config.json", "r", encoding="utf-8") as f:
+            self.config = json.load(f)
         self.setup_ui()
-        self.todo_path = self.get_file_path("待办.txt")
+        self.todo_path = self.get_file_path(self.config["todo_list"])
         self.load_todo()
         self.last_mtime = self.get_file_mtime()
         self.timer = QTimer(self)
@@ -20,17 +25,18 @@ class TodoWidget(QWidget):
         self.text_edit = QTextEdit()
         self.text_edit.setReadOnly(True)
         self.text_edit.setFont(QFont("Microsoft YaHei", 10))
-        self.text_edit.setStyleSheet("""
+        style = """
             QTextEdit {
                 background: transparent;
                 border: 2px solid rgba(200,200,200,150);
                 border-radius: 10px;
                 padding: 10px;
-                color: #222;
+                color: __TEXT_COLOR__;
             }
             QScrollBar:vertical { width: 8px; background: rgba(200,200,200,100); border-radius: 4px; }
             QScrollBar::handle:vertical { background: rgba(150,150,150,150); border-radius: 4px; min-height: 20px; }
-        """)
+        """
+        self.text_edit.setStyleSheet(style.replace("__TEXT_COLOR__", self.config["color_setting"]))
         layout.addWidget(self.text_edit)
 
     def get_file_path(self, filename):
